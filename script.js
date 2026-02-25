@@ -209,6 +209,8 @@ function selectCategory(cat) {
         payerSection.classList.remove('hidden');
     } else {
         payerSection.classList.add('hidden');
+        // 個人帳戶時，付款人應該等於類別
+        selectedPayer = cat;
     }
 }
 
