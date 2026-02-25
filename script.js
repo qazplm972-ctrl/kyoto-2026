@@ -131,7 +131,8 @@ function render(data) {
     // update header values with separate lines
     const setVal = (idJpySpan, idTwdSpan, jpy, twd) => {
         document.getElementById(idJpySpan).innerText = `¥${jpy}`;
-        // TWD is now hidden, no need to update
+        document.getElementById(idTwdSpan).innerText = `NT$${twd}`;
+        document.getElementById(idTwdSpan).classList.remove('hidden');
     };
     setVal('total-mine-jpy', 'total-mine-twd', headerStats.jpy['育維'], headerStats.twd['育維']);
     setVal('total-wife-jpy', 'total-wife-twd', headerStats.jpy['惠芳'], headerStats.twd['惠芳']);
@@ -170,18 +171,28 @@ function render(data) {
 // 5. 儲存功能 (包含付款人欄位)
 async function saveRecord() {
     const item = document.getElementById('item').value;
-    const jpy = parseFloat(document.getElementById('jpy').value);
+    const jpy = parseFloat(document.getElementById('jpy').value) || 0;
+    const twd = parseFloat(document.getElementById('twd').value) || 0;
     const btn = document.getElementById('save-btn');
 
-    if (!item || !jpy) return alert('請輸入完整資訊');
+    if (!item || (jpy === 0 && twd === 0)) return alert('請輸入完整資訊');
+
+    // 如果兩者都有輸入，優先使用用戶輸入的值；如果只有一個，自動計算另一個
+    let finalJpy = jpy;
+    let finalTwd = twd;
+    if (jpy > 0 && twd === 0) {
+        finalTwd = Math.round(jpy * JPY_RATE);
+    } else if (twd > 0 && jpy === 0) {
+        finalJpy = Math.round(twd / JPY_RATE);
+    }
 
     btn.disabled = true;
     const { error } = await supabaseClient
         .from('expenses')
         .insert([{
             item,
-            amount_jpy: jpy,
-            amount_twd: Math.round(jpy * JPY_RATE),
+            amount_jpy: finalJpy,
+            amount_twd: finalTwd,
             category: selectedCategory,
             paid_by: selectedPayer
         }]);
@@ -272,6 +283,7 @@ function closeModal() {
     document.getElementById('modal').classList.replace('flex', 'hidden');
     document.getElementById('item').value = '';
     document.getElementById('jpy').value = '';
+    document.getElementById('twd').value = '';
 }
 
 async function deleteRecord(id) {

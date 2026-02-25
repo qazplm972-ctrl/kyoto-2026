@@ -1,147 +1,269 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-TW">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>京都 2026 記帳本</title>
-    <link rel="icon" href="logo.png">
+    <link rel="icon" href="logo.png" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-</head>
+  </head>
 
-<body class="bg-slate-50 min-h-screen pb-24">
-
+  <body class="bg-slate-50 min-h-screen pb-24">
     <!-- 分頁標籤移至最上方 -->
     <div id="tabs" class="flex w-full px-4 py-4 gap-2">
-        <button onclick="selectTab('全部')"
-            class="tab-btn flex-1 text-center py-2 text-sm font-medium text-slate-600 rounded-full bg-slate-100 border border-transparent">全部</button>
-        <button onclick="selectTab('育維')"
-            class="tab-btn flex-1 text-center py-2 text-sm font-medium text-slate-600 rounded-full bg-slate-100 border border-transparent">育維</button>
-        <button onclick="selectTab('惠芳')"
-            class="tab-btn flex-1 text-center py-2 text-sm font-medium text-slate-600 rounded-full bg-slate-100 border border-transparent">惠芳</button>
-        <button onclick="selectTab('共用')"
-            class="tab-btn flex-1 text-center py-2 text-sm font-medium text-slate-600 rounded-full bg-slate-100 border border-transparent">共用</button>
+      <button
+        onclick="selectTab('全部')"
+        class="tab-btn flex-1 text-center py-2 text-sm font-medium text-slate-600 rounded-full bg-slate-100 border border-transparent"
+      >
+        全部
+      </button>
+      <button
+        onclick="selectTab('育維')"
+        class="tab-btn flex-1 text-center py-2 text-sm font-medium text-slate-600 rounded-full bg-slate-100 border border-transparent"
+      >
+        育維
+      </button>
+      <button
+        onclick="selectTab('惠芳')"
+        class="tab-btn flex-1 text-center py-2 text-sm font-medium text-slate-600 rounded-full bg-slate-100 border border-transparent"
+      >
+        惠芳
+      </button>
+      <button
+        onclick="selectTab('共用')"
+        class="tab-btn flex-1 text-center py-2 text-sm font-medium text-slate-600 rounded-full bg-slate-100 border border-transparent"
+      >
+        共用
+      </button>
     </div>
     <div class="px-4 mb-8">
-        <!-- 個人帳務 -->
-        <div id="personal-section" class="mb-4">
-            <div id="personal-header" class="text-sm font-bold text-slate-500 mb-2 uppercase tracking-wider">個人帳務</div>
-            <div id="personal-grid" class="grid grid-cols-2 gap-3">
-                <div id="stat-mine-card" class="bg-blue-50 p-3 rounded-2xl shadow-sm border border-blue-100">
-                    <div class="text-xs text-blue-500 mb-1">育維</div>
-                    <div id="total-mine" class="text-xl font-black text-blue-700"><span id="total-mine-jpy">¥0</span><br
-                            class="-my-1"><span id="total-mine-twd"
-                            class="text-xs text-gray-400 leading-none hidden"></span></div>
-                </div>
-                <div id="stat-wife-card" class="bg-pink-50 p-3 rounded-2xl shadow-sm border border-pink-100">
-                    <div class="text-xs text-pink-500 mb-1">惠芳</div>
-                    <div id="total-wife" class="text-xl font-black text-pink-700"><span id="total-wife-jpy">¥0</span><br
-                            class="-my-1"><span id="total-wife-twd"
-                            class="text-xs text-gray-400 leading-none hidden"></span></div>
-                </div>
-            </div>
+      <!-- 個人帳務 -->
+      <div id="personal-section" class="mb-4">
+        <div
+          id="personal-header"
+          class="text-sm font-bold text-slate-500 mb-2 uppercase tracking-wider"
+        >
+          個人帳務
         </div>
-        <!-- 共用帳務 -->
-        <div>
-            <div id="shared-header" class="text-sm font-bold text-slate-500 mb-2 uppercase tracking-wider">共用帳務</div>
-            <div id="shared-grid" class="grid grid-cols-3 gap-3">
-                <div id="stat-shared-card" class="bg-emerald-50 p-3 rounded-2xl shadow-sm border border-emerald-100">
-                    <div class="text-xs text-emerald-500 mb-1">總金額</div>
-                    <div id="total-shared" class="text-xl font-black text-emerald-700"><span
-                            id="total-shared-jpy">¥0</span><br class="-my-1"><span id="total-shared-twd"
-                            class="text-xs text-gray-500 leading-none hidden"></span></div>
-                </div>
-                <div id="stat-shared-mine-card"
-                    class="bg-emerald-50 p-3 rounded-2xl shadow-sm border border-emerald-100">
-                    <div class="text-xs text-emerald-500 mb-1">育維出的</div>
-                    <div id="total-shared-mine" class="text-xl font-black text-emerald-700"><span
-                            id="total-shared-mine-jpy">¥0</span><br class="-my-1"><span id="total-shared-mine-twd"
-                            class="text-xs text-gray-500 leading-none hidden"></span></div>
-                </div>
-                <div id="stat-shared-wife-card"
-                    class="bg-emerald-50 p-3 rounded-2xl shadow-sm border border-emerald-100">
-                    <div class="text-xs text-emerald-500 mb-1">惠芳出的</div>
-                    <div id="total-shared-wife" class="text-xl font-black text-emerald-700"><span
-                            id="total-shared-wife-jpy">¥0</span><br class="-my-1"><span id="total-shared-wife-twd"
-                            class="text-xs text-gray-500 leading-none hidden"></span></div>
-                </div>
+        <div id="personal-grid" class="grid grid-cols-2 gap-3">
+          <div
+            id="stat-mine-card"
+            class="bg-blue-50 p-3 rounded-2xl shadow-sm border border-blue-100"
+          >
+            <div class="text-xs text-blue-500 mb-1">育維</div>
+            <div id="total-mine" class="text-sm font-black text-blue-700">
+              <span id="total-mine-jpy">¥0</span><br class="-my-1" /><span
+                id="total-mine-twd"
+                class="text-xs text-blue-500 leading-none"
+              ></span>
             </div>
+          </div>
+          <div
+            id="stat-wife-card"
+            class="bg-pink-50 p-3 rounded-2xl shadow-sm border border-pink-100"
+          >
+            <div class="text-xs text-pink-500 mb-1">惠芳</div>
+            <div id="total-wife" class="text-sm font-black text-pink-700">
+              <span id="total-wife-jpy">¥0</span><br class="-my-1" /><span
+                id="total-wife-twd"
+                class="text-xs text-pink-500 leading-none"
+              ></span>
+            </div>
+          </div>
         </div>
+      </div>
+      <!-- 共用帳務 -->
+      <div>
+        <div
+          id="shared-header"
+          class="text-sm font-bold text-slate-500 mb-2 uppercase tracking-wider"
+        >
+          共用帳務
+        </div>
+        <div id="shared-grid" class="grid grid-cols-3 gap-3">
+          <div
+            id="stat-shared-card"
+            class="bg-emerald-50 p-3 rounded-2xl shadow-sm border border-emerald-100"
+          >
+            <div class="text-xs text-emerald-500 mb-1">總金額</div>
+            <div id="total-shared" class="text-sm font-black text-emerald-700">
+              <span id="total-shared-jpy">¥0</span><br class="-my-1" /><span
+                id="total-shared-twd"
+                class="text-xs text-emerald-500 leading-none"
+              ></span>
+            </div>
+          </div>
+          <div
+            id="stat-shared-mine-card"
+            class="bg-emerald-50 p-3 rounded-2xl shadow-sm border border-emerald-100"
+          >
+            <div class="text-xs text-emerald-500 mb-1">育維出的</div>
+            <div
+              id="total-shared-mine"
+              class="text-sm font-black text-emerald-700"
+            >
+              <span id="total-shared-mine-jpy">¥0</span
+              ><br class="-my-1" /><span
+                id="total-shared-mine-twd"
+                class="text-xs text-emerald-500 leading-none"
+              ></span>
+            </div>
+          </div>
+          <div
+            id="stat-shared-wife-card"
+            class="bg-emerald-50 p-3 rounded-2xl shadow-sm border border-emerald-100"
+          >
+            <div class="text-xs text-emerald-500 mb-1">惠芳出的</div>
+            <div
+              id="total-shared-wife"
+              class="text-sm font-black text-emerald-700"
+            >
+              <span id="total-shared-wife-jpy">¥0</span
+              ><br class="-my-1" /><span
+                id="total-shared-wife-twd"
+                class="text-xs text-emerald-500 leading-none"
+              ></span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <main class="px-4">
-
-        <div id="expense-list" class="space-y-3">
-            <div class="text-center py-10 text-slate-300">資料讀取中...</div>
-        </div>
+      <div id="expense-list" class="space-y-3">
+        <div class="text-center py-10 text-slate-300">資料讀取中...</div>
+      </div>
     </main>
 
     <div class="fixed bottom-8 left-0 right-0 px-6 flex justify-center">
-        <button onclick="openModal()"
-            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-full shadow-xl shadow-indigo-200 font-bold transition-transform active:scale-95">
-            記一筆
-        </button>
+      <button
+        onclick="openModal()"
+        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-full shadow-xl shadow-indigo-200 font-bold transition-transform active:scale-95"
+      >
+        記一筆
+      </button>
     </div>
 
-    <div id="modal"
-        class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50">
-        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-8 shadow-2xl animate-slide-up">
-            <h3 class="text-xl font-bold mb-6 text-slate-800">新增</h3>
+    <div
+      id="modal"
+      class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-end sm:items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-8 shadow-2xl animate-slide-up"
+      >
+        <h3 class="text-xl font-bold mb-6 text-slate-800">新增</h3>
 
-            <label class="block text-xs font-bold text-slate-400 mb-1">項目</label>
-            <input id="item" type="text" placeholder="買了什麼？"
-                class="w-full bg-slate-100 border-none p-4 rounded-xl mb-4 focus:ring-2 focus:ring-indigo-500">
+        <label class="block text-xs font-bold text-slate-400 mb-1">項目</label>
+        <input
+          id="item"
+          type="text"
+          placeholder="買了什麼？"
+          class="w-full bg-slate-100 border-none p-4 rounded-xl mb-4 focus:ring-2 focus:ring-indigo-500"
+        />
 
-            <label class="block text-xs font-bold text-slate-400 mb-1">日幣金額 (JPY)</label>
-            <input id="jpy" type="number" placeholder="¥ 0"
-                class="w-full bg-slate-100 border-none p-4 rounded-xl mb-4 focus:ring-2 focus:ring-indigo-500">
+        <label class="block text-xs font-bold text-slate-400 mb-1"
+          >日幣金額 (JPY)</label
+        >
+        <input
+          id="jpy"
+          type="number"
+          placeholder="¥ 0"
+          class="w-full bg-slate-100 border-none p-4 rounded-xl mb-4 focus:ring-2 focus:ring-indigo-500"
+        />
 
-            <label class="block text-xs font-bold text-slate-400 mb-1">類別</label>
-            <div class="grid grid-cols-3 gap-2 mb-8">
-                <button onclick="selectCategory('育維')" class="cat-btn py-3 border-2 border-slate-100 rounded-xl text-sm"
-                    data-val="育維">我的</button>
-                <button onclick="selectCategory('惠芳')" class="cat-btn py-3 border-2 border-slate-100 rounded-xl text-sm"
-                    data-val="惠芳">惠芳</button>
-                <button onclick="selectCategory('共用')" class="cat-btn py-3 border-2 border-slate-100 rounded-xl text-sm"
-                    data-val="共用">共用</button>
-            </div>
-            <!-- 付款人區塊僅在共用時顯示 -->
-            <div id="payer-section" class="hidden">
-                <label class="block text-xs font-bold text-slate-400 mb-1">付款人</label>
-                <div class="grid grid-cols-2 gap-2 mb-4">
-                    <button onclick="selectPayer('育維')"
-                        class="payer-btn py-3 border-2 border-slate-100 rounded-xl text-sm" data-val="育維">育維</button>
-                    <button onclick="selectPayer('惠芳')"
-                        class="payer-btn py-3 border-2 border-slate-100 rounded-xl text-sm" data-val="惠芳">惠芳</button>
-                </div>
-            </div>
-            <div class="flex gap-3">
-                <button onclick="closeModal()"
-                    class="flex-1 py-4 bg-slate-100 text-slate-500 rounded-2xl font-bold">取消</button>
-                <button id="save-btn" onclick="saveRecord()"
-                    class="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-bold">儲存</button>
-            </div>
+        <label class="block text-xs font-bold text-slate-400 mb-1"
+          >台幣金額 (TWD)</label
+        >
+        <input
+          id="twd"
+          type="number"
+          placeholder="NT$ 0"
+          class="w-full bg-slate-100 border-none p-4 rounded-xl mb-4 focus:ring-2 focus:ring-indigo-500"
+        />
+
+        <label class="block text-xs font-bold text-slate-400 mb-1">類別</label>
+        <div class="grid grid-cols-3 gap-2 mb-8">
+          <button
+            onclick="selectCategory('育維')"
+            class="cat-btn py-3 border-2 border-slate-100 rounded-xl text-sm"
+            data-val="育維"
+          >
+            我的
+          </button>
+          <button
+            onclick="selectCategory('惠芳')"
+            class="cat-btn py-3 border-2 border-slate-100 rounded-xl text-sm"
+            data-val="惠芳"
+          >
+            惠芳
+          </button>
+          <button
+            onclick="selectCategory('共用')"
+            class="cat-btn py-3 border-2 border-slate-100 rounded-xl text-sm"
+            data-val="共用"
+          >
+            共用
+          </button>
         </div>
+        <!-- 付款人區塊僅在共用時顯示 -->
+        <div id="payer-section" class="hidden">
+          <label class="block text-xs font-bold text-slate-400 mb-1"
+            >付款人</label
+          >
+          <div class="grid grid-cols-2 gap-2 mb-4">
+            <button
+              onclick="selectPayer('育維')"
+              class="payer-btn py-3 border-2 border-slate-100 rounded-xl text-sm"
+              data-val="育維"
+            >
+              育維
+            </button>
+            <button
+              onclick="selectPayer('惠芳')"
+              class="payer-btn py-3 border-2 border-slate-100 rounded-xl text-sm"
+              data-val="惠芳"
+            >
+              惠芳
+            </button>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <button
+            onclick="closeModal()"
+            class="flex-1 py-4 bg-slate-100 text-slate-500 rounded-2xl font-bold"
+          >
+            取消
+          </button>
+          <button
+            id="save-btn"
+            onclick="saveRecord()"
+            class="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-bold"
+          >
+            儲存
+          </button>
+        </div>
+      </div>
     </div>
-
 
     <style>
-        @keyframes slide-up {
-            from {
-                transform: translateY(100%);
-            }
-
-            to {
-                transform: translateY(0);
-            }
+      @keyframes slide-up {
+        from {
+          transform: translateY(100%);
         }
 
-        .animate-slide-up {
-            animation: slide-up 0.3s ease-out;
+        to {
+          transform: translateY(0);
         }
+      }
+
+      .animate-slide-up {
+        animation: slide-up 0.3s ease-out;
+      }
     </style>
     <script src="script.js"></script>
-</body>
-
+  </body>
 </html>
