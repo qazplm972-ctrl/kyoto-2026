@@ -165,23 +165,33 @@
           class="w-full bg-slate-100 border-none p-4 rounded-xl mb-4 focus:ring-2 focus:ring-indigo-500"
         />
 
-        <label class="block text-xs font-bold text-slate-400 mb-1"
-          >日幣金額 (JPY)</label
-        >
-        <input
-          id="jpy"
-          type="number"
-          placeholder="¥ 0"
-          class="w-full bg-slate-100 border-none p-4 rounded-xl mb-4 focus:ring-2 focus:ring-indigo-500"
-        />
+        <label class="block text-xs font-bold text-slate-400 mb-1">幣別</label>
+        <div class="grid grid-cols-2 gap-2 mb-4">
+          <button
+            onclick="selectCurrency('jpy')"
+            class="currency-btn py-3 border-2 border-slate-100 rounded-xl text-sm"
+            data-val="jpy"
+          >
+            日幣 ¥
+          </button>
+          <button
+            onclick="selectCurrency('twd')"
+            class="currency-btn py-3 border-2 border-slate-100 rounded-xl text-sm"
+            data-val="twd"
+          >
+            台幣 NT$
+          </button>
+        </div>
 
-        <label class="block text-xs font-bold text-slate-400 mb-1"
-          >台幣金額 (TWD)</label
+        <label
+          class="block text-xs font-bold text-slate-400 mb-1"
+          id="amount-label"
+          >金額</label
         >
         <input
-          id="twd"
+          id="amount"
           type="number"
-          placeholder="NT$ 0"
+          placeholder="0"
           class="w-full bg-slate-100 border-none p-4 rounded-xl mb-4 focus:ring-2 focus:ring-indigo-500"
         />
 

@@ -8,6 +8,7 @@ const JPY_RATE = 0.21; // 2026 京都行預估匯率
 // 2. 全域狀態
 let selectedCategory = '育維'; // 預設類別
 let selectedPayer = '育維';    // 預設付款人
+let selectedCurrency = 'jpy';  // 預設幣別
 let currentTab = '全部';      // 預設分頁
 let expensesData = [];        // 快取抓到的資料
 
@@ -94,6 +95,7 @@ function render(data) {
         .map(date => {
             const itemsHtml = groups[date].map(r => {
                 const showPayer = currentTab === '全部' || currentTab === '共用';
+                const amountDisplay = r.amount_jpy > 0 ? `¥${r.amount_jpy}` : `NT$${r.amount_twd}`;
                 return `
                 <div class="bg-white p-4 rounded-2xl shadow-sm flex justify-between items-center border border-slate-100">
                     <div class="flex-1">
@@ -108,8 +110,7 @@ function render(data) {
                     </div>
                     <div class="flex items-center gap-4">
                         <div class="text-right">
-                            <div class="text-lg font-bold text-slate-900">¥${r.amount_jpy}</div>
-                            <div class="text-xs text-indigo-500 font-medium">≈ NT$${r.amount_twd}</div>
+                            <div class="text-lg font-bold text-slate-900">${amountDisplay}</div>
                         </div>
                         <button onclick="deleteRecord(${r.id})" class="p-2 text-slate-300 hover:text-red-500">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
@@ -171,31 +172,30 @@ function render(data) {
 // 5. 儲存功能 (包含付款人欄位)
 async function saveRecord() {
     const item = document.getElementById('item').value;
-    const jpy = parseFloat(document.getElementById('jpy').value) || 0;
-    const twd = parseFloat(document.getElementById('twd').value) || 0;
+    const amount = parseFloat(document.getElementById('amount').value) || 0;
     const btn = document.getElementById('save-btn');
 
-    if (!item || (jpy === 0 && twd === 0)) return alert('請輸入完整資訊');
-
-    // 如果兩者都有輸入，優先使用用戶輸入的值；如果只有一個，自動計算另一個
-    let finalJpy = jpy;
-    let finalTwd = twd;
-    if (jpy > 0 && twd === 0) {
-        finalTwd = Math.round(jpy * JPY_RATE);
-    } else if (twd > 0 && jpy === 0) {
-        finalJpy = Math.round(twd / JPY_RATE);
-    }
+    if (!item || amount === 0) return alert('請輸入完整資訊');
 
     btn.disabled = true;
+    const recordData = {
+        item,
+        category: selectedCategory,
+        paid_by: selectedPayer
+    };
+
+    // 根據幣別設置金額
+    if (selectedCurrency === 'jpy') {
+        recordData.amount_jpy = amount;
+        recordData.amount_twd = 0;
+    } else {
+        recordData.amount_jpy = 0;
+        recordData.amount_twd = amount;
+    }
+    
     const { error } = await supabaseClient
         .from('expenses')
-        .insert([{
-            item,
-            amount_jpy: finalJpy,
-            amount_twd: finalTwd,
-            category: selectedCategory,
-            paid_by: selectedPayer
-        }]);
+        .insert([recordData]);
 
     btn.disabled = false;
     if (error) {
@@ -207,6 +207,25 @@ async function saveRecord() {
 }
 
 // 6. UI 切換邏輯
+function selectCurrency(currency) {
+    selectedCurrency = currency;
+    const label = document.getElementById('amount-label');
+    const input = document.getElementById('amount');
+    
+    document.querySelectorAll('.currency-btn').forEach(b => {
+        const isMatch = b.dataset.val === currency;
+        b.className = `currency-btn py-3 border-2 rounded-xl text-sm ${isMatch ? 'border-indigo-600 bg-indigo-50 text-indigo-600' : 'border-slate-100'}`;
+    });
+
+    if (currency === 'jpy') {
+        label.innerText = '金額 (日幣)';
+        input.placeholder = '¥ 0';
+    } else {
+        label.innerText = '金額 (台幣)';
+        input.placeholder = 'NT$ 0';
+    }
+}
+
 function selectCategory(cat) {
     selectedCategory = cat;
     document.querySelectorAll('.cat-btn').forEach(b => {
@@ -237,6 +256,7 @@ function openModal() {
     document.getElementById('modal').classList.replace('hidden', 'flex');
     selectCategory('育維'); // default to 育維
     selectPayer('育維');
+    selectCurrency('jpy'); // default to jpy
 }
 
 // 分頁切換
@@ -282,8 +302,7 @@ modalOverlay.addEventListener('click', (e) => {
 function closeModal() {
     document.getElementById('modal').classList.replace('flex', 'hidden');
     document.getElementById('item').value = '';
-    document.getElementById('jpy').value = '';
-    document.getElementById('twd').value = '';
+    document.getElementById('amount').value = '';
 }
 
 async function deleteRecord(id) {
