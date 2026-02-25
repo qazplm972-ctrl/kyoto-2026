@@ -263,7 +263,7 @@ function openModal() {
 function selectTab(tab) {
     currentTab = tab;
     document.querySelectorAll('#tabs .tab-btn').forEach(b => {
-        const isActive = b.textContent === tab;
+        const isActive = b.textContent.trim() === tab;
         if (isActive) {
             b.className = `tab-btn flex-1 text-center py-2 text-sm font-medium text-white rounded-full bg-indigo-600 border border-transparent`;
         } else {
